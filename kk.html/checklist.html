@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Checklist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #0e1d11;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 255, 127, 0.3);
+        }
+        .calendar-container {
+            margin-bottom: 20px;
+            background: #2c2c2c;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .day {
+            padding: 10px;
+            background: #1e1e1e;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .day.selected {
+            background: limegreen;
+            color: black;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #2c2c2c;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: green;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button:hover {
+            background: limegreen;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🌱 My Daily Eco Checklist</h2>
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button onclick="prevMonth()">◀</button>
+                <h3 id="currentMonth"></h3>
+                <button onclick="nextMonth()">▶</button>
+            </div>
+            <div class="calendar-grid" id="calendar"></div>
+        </div>
+        <h3>Tasks for <span id="selectedDate">Select a Date</span></h3>
+        <div id="taskList">
+            <div class="task"><span>Used public transport</span><input type="checkbox"></div>
+            <div class="task"><span>Reduced plastic waste</span><input type="checkbox"></div>
+            <div class="task"><span>Saved electricity</span><input type="checkbox"></div>
+            <div class="task"><span>Used a reusable water bottle</span><input type="checkbox"></div>
+            <div class="task"><span>Ate a plant-based meal today</span><input type="checkbox"></div>
+            <div class="task"><span>Recycled paper, plastic, or glass</span><input type="checkbox"></div>
+            <div class="task"><span>Planted a tree or maintained a garden</span><input type="checkbox"></div>
+            <div class="task"><span>Used solar energy</span><input type="checkbox"></div>
+            <div class="task"><span>Participated in a community clean-up</span><input type="checkbox"></div>
+        </div>
+        <button onclick="saveProgress()">💾 Save Progress</button>
+    </div>
+    <script>
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = null;
+        let pointsData = {};
+        
+        function renderCalendar() {
+            document.getElementById("currentMonth").innerText = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
+            let calendar = document.getElementById("calendar");
+            calendar.innerHTML = "";
+            let firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            let totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+            for (let i = 0; i < firstDay; i++) {
+                let emptyCell = document.createElement("div");
+                calendar.appendChild(emptyCell);
+            }
+            for (let i = 1; i <= totalDays; i++) {
+                let dayCell = document.createElement("div");
+                dayCell.classList.add("day");
+                dayCell.innerText = i;
+                dayCell.onclick = () => selectDate(i);
+                if (pointsData[`${currentYear}-${currentMonth}-${i}`]) {
+                    dayCell.innerHTML += `<br><small>${pointsData[`${currentYear}-${currentMonth}-${i}`]} pts</small>`;
+                }
+                calendar.appendChild(dayCell);
+            }
+        }
+        function prevMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+        function selectDate(day) {
+            selectedDate = `${currentYear}-${currentMonth}-${day}`;
+            document.getElementById("selectedDate").innerText = `📅 ${day} ${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
+        }
+        function saveProgress() {
+            if (!selectedDate) {
+                alert("Please select a date!");
+                return;
+            }
+            let checkedTasks = document.querySelectorAll("#taskList input:checked").length;
+            let points = checkedTasks * 10;
+            pointsData[selectedDate] = points;
+            alert(`Saved ${points} points for ${selectedDate}`);
+            renderCalendar();
+        }
+        renderCalendar();
+    </script>
+</body>
+</html>
